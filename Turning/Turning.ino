@@ -26,6 +26,8 @@ mtrn3100::EncoderOdometry encoder_odometry(15,99); //TASK1 TODO: IDENTIFY THE WH
 mtrn3100::IMUOdometry IMU_odometry;
 mtrn3100::PIDController controller(8,0.2,0);
 mtrn3100::PIDController controller2(8,0.2,0);
+mtrn3100::PIDController IMUController(8,0.2,0);
+
 
 
 
@@ -45,35 +47,28 @@ void setup() {
     Serial.println("Done!\n");
     controller.zeroAndSetTarget(encoder.getLeftRotation(), 0);
     controller2.zeroAndSetTarget(encoder.getRightRotation(), 0);
+    IMUController.zeroAndSetTarget(mpu.getAngleZ(), 90);
 }
 
 
 void loop() {
 
     delay(50);
+
+    mpu.update;
+    IMU_odometry.update(mpu.getAccX(), mpu.getAccY(), mpu.getAngleZ());
+
     encoder_odometry.update(encoder.getLeftRotation(),encoder.getRightRotation());
 
-    float current_rotation_L = encoder.getLeftRotation();
-    float pwm_L = controller.compute(current_rotation_L);
+    float current_angle= mpu.getAngleZ();
+    float pwm_L = IMUController.compute(current_angle);
     motor.setPWM(-pwm_L);
+    motor2.setPWM(-pwm_L);
 
-    float current_rotation_R = encoder.getRightRotation();
-    float pwm_R = controller2.compute(current_rotation_R);
-    motor2.setPWM(-pwm_R);
-
-    for (int i = 0; i < command.length(); i++) {
-        if (command[i] == 'l') {
-            controller.zeroAndSetTarget(encoder.getLeftRotation(), 0);
-            controller2.zeroAndSetTarget(encoder.getRightRotation(), 0); 
-        }
-        if (command[i] == 'r') {
-            controller.zeroAndSetTarget(encoder.getLeftRotation(), 0);
-            controller2.zeroAndSetTarget(encoder.getRightRotation(), 0);
-        }
-        if (command[i] == 'f') {
-            controller.zeroAndSetTarget(encoder.getLeftRotation(), 0);
-            controller2.zeroAndSetTarget(encoder.getRightRotation(), 0);            
-        }
+    if (encoder_odometry.AMF() == 1) {
+        delay(5000);
+        IMUController.zeroAndSetTarget(mpu.getAngleZ(), 0);
     }
+
 
 }

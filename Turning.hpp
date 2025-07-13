@@ -14,7 +14,21 @@ public:
     }
 
     float turn() {
-        
+
+    }
+
+    void chaining(String command) {
+        for (int i = 0; i < command.length(); i++) {
+            if (command[i] == 'l') {
+                
+            }
+            if (command[i] == 'r') {
+
+            }
+            if (command[i] == 'f') {
+
+            }
+        }
     }
 
 private:

@@ -49,24 +49,28 @@ void setup() {
 
 
 void loop() {
-
     delay(50);
     encoder_odometry.update(encoder.getLeftRotation(),encoder.getRightRotation());
     String command = ;
     int i = 0;
+    int check = 0;
     while (i < command.length()) {
+        delay(50);
         encoder_odometry.update(encoder.getLeftRotation(),encoder.getRightRotation());
-        if (command[i] == 'l') {
-            controller.zeroAndSetTarget(encoder.getLeftRotation(), 0);
-            controller2.zeroAndSetTarget(encoder.getRightRotation(), 0); 
+        if (command[i] == 'l' && check == 0) {
+            controller.zeroAndSetTarget(encoder.getLeftRotation(), 3.14);
+            controller2.zeroAndSetTarget(encoder.getRightRotation(), 3.14); 
+            check = 1;
         }
-        if (command[i] == 'r') {
-            controller.zeroAndSetTarget(encoder.getLeftRotation(), 0);
-            controller2.zeroAndSetTarget(encoder.getRightRotation(), 0);
+        if (command[i] == 'r' && check == 0) {
+            controller.zeroAndSetTarget(encoder.getLeftRotation(), 3.14);
+            controller2.zeroAndSetTarget(encoder.getRightRotation(), 3.14);
+            check = 1;
         }
-        if (command[i] == 'f') {
-            controller.zeroAndSetTarget(encoder.getLeftRotation(), 0);
-            controller2.zeroAndSetTarget(encoder.getRightRotation(), 0);            
+        if (command[i] == 'f' && check == 0) {
+            controller.zeroAndSetTarget(encoder.getLeftRotation(), 6.28);
+            controller2.zeroAndSetTarget(encoder.getRightRotation(), 6.28);     
+            check = 1;       
         }
         float current_rotation_L = encoder.getLeftRotation();
         float pwm_L = controller.compute(current_rotation_L);
@@ -75,6 +79,10 @@ void loop() {
         float current_rotation_R = encoder.getRightRotation();
         float pwm_R = controller2.compute(current_rotation_R);
         motor2.setPWM(-pwm_R);
+        //Lidar correction
+        if (encoder_odometry.AMF() == 1) {
+            i++;
+            check = 0;
+        }
     }
-
 }

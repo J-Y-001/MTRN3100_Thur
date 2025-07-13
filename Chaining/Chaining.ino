@@ -52,16 +52,10 @@ void loop() {
 
     delay(50);
     encoder_odometry.update(encoder.getLeftRotation(),encoder.getRightRotation());
-
-    float current_rotation_L = encoder.getLeftRotation();
-    float pwm_L = controller.compute(current_rotation_L);
-    motor.setPWM(-pwm_L);
-
-    float current_rotation_R = encoder.getRightRotation();
-    float pwm_R = controller2.compute(current_rotation_R);
-    motor2.setPWM(-pwm_R);
-
-    for (int i = 0; i < command.length(); i++) {
+    String command = ;
+    int i = 0;
+    while (i < command.length()) {
+        encoder_odometry.update(encoder.getLeftRotation(),encoder.getRightRotation());
         if (command[i] == 'l') {
             controller.zeroAndSetTarget(encoder.getLeftRotation(), 0);
             controller2.zeroAndSetTarget(encoder.getRightRotation(), 0); 
@@ -74,6 +68,13 @@ void loop() {
             controller.zeroAndSetTarget(encoder.getLeftRotation(), 0);
             controller2.zeroAndSetTarget(encoder.getRightRotation(), 0);            
         }
+        float current_rotation_L = encoder.getLeftRotation();
+        float pwm_L = controller.compute(current_rotation_L);
+        motor.setPWM(-pwm_L);
+
+        float current_rotation_R = encoder.getRightRotation();
+        float pwm_R = controller2.compute(current_rotation_R);
+        motor2.setPWM(-pwm_R);
     }
 
 }

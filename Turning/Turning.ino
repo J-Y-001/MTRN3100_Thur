@@ -55,7 +55,7 @@ void loop() {
 
     delay(50);
 
-    mpu.update;
+    mpu.update();
     IMU_odometry.update(mpu.getAccX(), mpu.getAccY(), mpu.getAngleZ());
 
     encoder_odometry.update(encoder.getLeftRotation(),encoder.getRightRotation());
@@ -65,10 +65,10 @@ void loop() {
     motor.setPWM(-pwm_L);
     motor2.setPWM(-pwm_L);
 
-    if (encoder_odometry.AMF() == 1) {
-        delay(5000);
-        IMUController.zeroAndSetTarget(mpu.getAngleZ(), 0);
-    }
+   // if (encoder_odometry.AMF() == 1) {
+     //   delay(10000);
+       // IMUController.zeroAndSetTarget(mpu.getAngleZ(), 0);
+    //}
 
 
 }

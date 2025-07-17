@@ -18,7 +18,7 @@ int sensor_enable_pin = A1;
 mtrn3100::Motor motor1(MOT1PWM, MOT1DIR);
 mtrn3100::Motor motor2(MOT2PWM, MOT2DIR);
 
-#define set_distance 100
+#define set_distance 103
 #define operation_speed 255
 #define lidar_max_range 255
 
@@ -60,6 +60,6 @@ void loop()
 
 int output(int distance) {
    int error = abs(distance - set_distance);
-   float output = operation_speed * error/lidar_max_range;
+   float output = operation_speed * error/lidar_max_range + 9;
    return static_cast<int>(output);
 }

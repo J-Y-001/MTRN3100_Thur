@@ -26,7 +26,7 @@ mtrn3100::EncoderOdometry encoder_odometry(15,99); //TASK1 TODO: IDENTIFY THE WH
 mtrn3100::IMUOdometry IMU_odometry;
 mtrn3100::PIDController controller(8,0.2,0);
 mtrn3100::PIDController controller2(8,0.2,0);
-mtrn3100::PIDController IMUController(8,0.2,0);
+mtrn3100::PIDController IMUController(20,1,0.5);
 
 
 
@@ -62,8 +62,14 @@ void loop() {
 
     float current_angle= mpu.getAngleZ();
     float pwm_L = IMUController.compute(current_angle);
+    if (pwm_L > 100) {
+        pwm_L = 100;
+    }
+        if (pwm_L < -100) {
+        pwm_L = -100;
+    }
     motor.setPWM(-pwm_L);
-    motor2.setPWM(-pwm_L);
+    motor2.setPWM(-pwm_L);    
 
     //if (encoder_odometry.AMF() == 1) {
        // delay(5000);

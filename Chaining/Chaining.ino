@@ -24,8 +24,8 @@ MPU6050 mpu(Wire);
 mtrn3100::DualEncoder encoder(EN_1_A, EN_1_B,EN_2_A, EN_2_B);
 mtrn3100::EncoderOdometry encoder_odometry(15,99); //TASK1 TODO: IDENTIFY THE WHEEL RADIUS AND AXLE LENGTH 90
 mtrn3100::IMUOdometry IMU_odometry;
-mtrn3100::PIDController controller(8,0.2,0);
-mtrn3100::PIDController controller2(8,0.2,0);
+mtrn3100::PIDController controller(350,1,0.5);
+mtrn3100::PIDController controller2(350,1,0.5);
 mtrn3100::PIDController IMUController(20,1,0.5);
 
 
@@ -48,7 +48,7 @@ void setup() {
 int target_angle = 0;
 int i = 0;
 int check = 0;
-String command = "lrlrlr";
+String command = "rflflffr";
 
 void loop() {
     delay(50);
@@ -58,32 +58,62 @@ void loop() {
     encoder_odometry.update(encoder.getLeftRotation(),encoder.getRightRotation());
 
     if (command[i] == 'l' && check == 0) {
-        target_angle = target_angle + 90;
+        target_angle = 90;
         IMUController.zeroAndSetTarget(mpu.getAngleZ(), target_angle);
         check = 1;
     }
     
     if (command[i] == 'r' && check == 0) {
-        target_angle = target_angle - 90;
+        target_angle = -90;
         IMUController.zeroAndSetTarget(mpu.getAngleZ(), target_angle);
         check = 1;
     }
 
-    float current_angle= mpu.getAngleZ();
-    float pwm_L = IMUController.compute(current_angle);
-    if (pwm_L > 100) {
-        pwm_L = 100;
-    }
+    if (command[i] == 'l' || command[i] == 'r'){
+        float current_angle = mpu.getAngleZ();
+        float pwm_L = IMUController.compute(current_angle);
+        if (pwm_L > 100) {
+            pwm_L = 100;
+        }
         if (pwm_L < -100) {
-        pwm_L = -100;
+            pwm_L = -100;
+        }  
+        motor.setPWM(-pwm_L);
+        motor2.setPWM(-pwm_L);
     }
-    motor.setPWM(-pwm_L);
-    motor2.setPWM(-pwm_L);  
+
+    if (command[i] == 'f' && check == 0) {
+        controller.zeroAndSetTarget(encoder.getLeftRotation(), -15.5);
+        controller2.zeroAndSetTarget(encoder.getRightRotation(), 15.5);
+        check = 1;
+    }
+
+    if (command[i] == 'f') {
+        float current_rotationL = encoder.getLeftRotation();
+        float pwm_L = controller.compute(current_rotationL);
+        float current_rotationR = encoder.getRightRotation();
+        float pwm_R = controller2.compute(current_rotationR);  
+        if (pwm_L > 100) {
+            pwm_L = 100;
+        }
+        if (pwm_L < -100) {
+            pwm_L = -100;
+        }    
+        if (pwm_R > 100) {
+            pwm_R = 100;
+        }
+        if (pwm_R < -100) {
+            pwm_R = -100;
+        }     
+        motor.setPWM(-pwm_L);
+        motor2.setPWM(-pwm_R/1.05);
+    }
 
     //encoder_odometry.AMF();
 
     if (encoder_odometry.AMF() == 1) {
         i++;
+        Serial.println(i);
         check = 0;
         if (i == command.length()) {
            delay(20000);

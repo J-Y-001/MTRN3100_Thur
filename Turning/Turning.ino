@@ -47,7 +47,7 @@ void setup() {
     Serial.println("Done!\n");
     controller.zeroAndSetTarget(encoder.getLeftRotation(), 0);
     controller2.zeroAndSetTarget(encoder.getRightRotation(), 0);
-    IMUController.zeroAndSetTarget(mpu.getAngleZ(), 90);
+    IMUController.zeroAndSetTarget(mpu.getAngleZ(), -90);
 }
 
 

@@ -22,7 +22,7 @@ MPU6050 mpu(Wire);
 #define EN_2_B 8 //These are the pins for the PCB encoder
 
 mtrn3100::DualEncoder encoder(EN_1_A, EN_1_B,EN_2_A, EN_2_B);
-mtrn3100::EncoderOdometry encoder_odometry(15,99); //TASK1 TODO: IDENTIFY THE WHEEL RADIUS AND AXLE LENGTH 90
+mtrn3100::EncoderOdometry encoder_odometry(15,87); //TASK1 TODO: IDENTIFY THE WHEEL RADIUS AND AXLE LENGTH 90
 mtrn3100::IMUOdometry IMU_odometry;
 mtrn3100::PIDController controller(350,1,0.5);
 mtrn3100::PIDController controller2(350,1,0.5);
@@ -48,7 +48,7 @@ void setup() {
 int target_angle = 0;
 int i = 0;
 int check = 0;
-String command = "rflflffr";
+String command = "lfrffrfl";
 
 void loop() {
     delay(50);
@@ -83,8 +83,8 @@ void loop() {
     }
 
     if (command[i] == 'f' && check == 0) {
-        controller.zeroAndSetTarget(encoder.getLeftRotation(), -15.5);
-        controller2.zeroAndSetTarget(encoder.getRightRotation(), 15.5);
+        controller.zeroAndSetTarget(encoder.getLeftRotation(), -11.25);
+        controller2.zeroAndSetTarget(encoder.getRightRotation(), 11.25);
         check = 1;
     }
 

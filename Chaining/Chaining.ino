@@ -5,6 +5,7 @@
 #include <MPU6050_light.h>
 #include "Motor.hpp"
 #include "PIDController.hpp"
+#include "path.h"
 
 #define MOT1PWM 11
 #define MOT1DIR 12
@@ -48,7 +49,7 @@ void setup() {
 int target_angle = 0;
 int i = 0;
 int check = 0;
-String command = "lfrffrfl";
+String command = path;
 
 void loop() {
     delay(50);

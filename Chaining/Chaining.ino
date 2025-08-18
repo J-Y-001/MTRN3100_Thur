@@ -49,6 +49,7 @@ void setup() {
 int target_angle = 0;
 int i = 0;
 int check = 0;
+int smooth_check = 0;
 String command = path;
 
 void loop() {
@@ -110,11 +111,109 @@ void loop() {
         motor2.setPWM(-pwm_R/1.05);
     }
 
+    if (i + 2 < command.length()) {
+        String three = command.substring(i, i + 3);
+
+        if (three == 'frf' || three == 'flf') {
+            if (smooth_check == 0) {
+                controller.zeroAndSetTarget(encoder.getLeftRotation(), -11.25/2);
+                controller2.zeroAndSetTarget(encoder.getRightRotation(), 11.25/2);
+                smooth_check == 1;
+            }
+
+            if (smooth_check == 1) {
+                float current_rotationL = encoder.getLeftRotation();
+                float pwm_L = controller.compute(current_rotationL);
+                float current_rotationR = encoder.getRightRotation();
+                float pwm_R = controller2.compute(current_rotationR);  
+                if (pwm_L > 100) {
+                    pwm_L = 100;
+                }
+                if (pwm_L < -100) {
+                    pwm_L = -100;
+                }    
+                if (pwm_R > 100) {
+                    pwm_R = 100;
+                }
+                if (pwm_R < -100) {
+                    pwm_R = -100;
+                }     
+                motor.setPWM(-pwm_L);
+                motor2.setPWM(-pwm_R/1.05);
+
+                if (encoder.getLeftRotation() == -11.25/2 && encoder.getRightRotation() == 11.25/2) {
+                    smooth_check == 2;
+                }
+            }
+
+            if (smooth_check == 2) {
+                    if (three = 'flf') {
+                        target_angle = 90;
+                        IMUController.zeroAndSetTarget(mpu.getAngleZ(), target_angle);
+                        check = 1;
+                    }
+                    
+                    if ('frf') {
+                        target_angle = -90;
+                        IMUController.zeroAndSetTarget(mpu.getAngleZ(), target_angle);
+                        check = 1;
+                    }
+                smooth_check == 3;
+            }
+
+            if (smooth_check == 3) {
+                float current_angle = mpu.getAngleZ();
+                if (three = 'flf') {
+                    motor.setPWM(40);
+                    motor2.setPWM(20);
+                }
+                if (three = 'frf') {
+                    motor.setPWM(20);
+                    motor2.setPWM(40);
+                } 
+                if (current_angle == target_angle) {
+                    smooth_check == 4;
+                }              
+            }
+
+            if (smooth_check == 4) {
+                controller.zeroAndSetTarget(encoder.getLeftRotation(), -11.25/2);
+                controller2.zeroAndSetTarget(encoder.getRightRotation(), 11.25/2);
+                smooth_check == 5;
+            }
+
+            if (smooth_check == 5) {
+                float current_rotationL = encoder.getLeftRotation();
+                float pwm_L = controller.compute(current_rotationL);
+                float current_rotationR = encoder.getRightRotation();
+                float pwm_R = controller2.compute(current_rotationR);  
+                if (pwm_L > 100) {
+                    pwm_L = 100;
+                }
+                if (pwm_L < -100) {
+                    pwm_L = -100;
+                }    
+                if (pwm_R > 100) {
+                    pwm_R = 100;
+                }
+                if (pwm_R < -100) {
+                    pwm_R = -100;
+                }     
+                motor.setPWM(-pwm_L);
+                motor2.setPWM(-pwm_R/1.05);
+                if (encoder.getLeftRotation() == -11.25/2 && encoder.getRightRotation() == 11.25/2) {
+                    i = i + 2;
+                }
+            }
+        }
+    }
+
     //encoder_odometry.AMF();
 
     if (encoder_odometry.AMF() == 1) {
         i++;
         Serial.println(i);
+        smooth_check = 0;
         check = 0;
         if (i == command.length()) {
            delay(20000);

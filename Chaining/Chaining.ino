@@ -163,13 +163,26 @@ void loop() {
 
             if (smooth_check == 3) {
                 float current_angle = mpu.getAngleZ();
+                float pwm_L = IMUController.compute(current_angle);
                 if (three = 'flf') {
-                    motor.setPWM(40);
-                    motor2.setPWM(20);
+                    if (pwm_L > 100) {
+                        pwm_L = 100;
+                    }
+                    if (pwm_L < -100) {
+                        pwm_L = -100;
+                    }  
+                    motor.setPWM(-pwm_L/2);
+                    motor2.setPWM(-pwm_L);
                 }
                 if (three = 'frf') {
-                    motor.setPWM(20);
-                    motor2.setPWM(40);
+                    if (pwm_L > 100) {
+                        pwm_L = 100;
+                    }
+                    if (pwm_L < -100) {
+                        pwm_L = -100;
+                    }  
+                    motor.setPWM(-pwm_L);
+                    motor2.setPWM(-pwm_L/2);
                 } 
                 if (current_angle == target_angle) {
                     smooth_check == 4;

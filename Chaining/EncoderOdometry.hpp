@@ -6,7 +6,7 @@ namespace mtrn3100 {
 class EncoderOdometry {
 public:
     EncoderOdometry(float radius, float wheelBase) : x(0), y(0), h(0), R(radius), B(wheelBase), lastLPos(0), lastRPos(0), delta_left_radians(0), delta_right_radians(0), index(0), setup(0) {
-        for (int i = 0; i < 20; i++) {
+        for (int i = 0; i < 10; i++) {
             arrayL[i] = 0;
             arrayR[i] = 0;
         }
@@ -46,16 +46,16 @@ public:
         float avgL = 0;
         float avgR = 0;
 
-        for (int j = 0; j < 20; j++) {
+        for (int j = 0; j < 10; j++) {
             avgL += arrayL[j];
             avgR += arrayR[j];
         }
 
-        avgL = avgL / 20;
-        avgR = avgR / 20;
+        avgL = avgL / 10;
+        avgR = avgR / 10;
 
         index++;
-        if (index == 20) {
+        if (index == 10) {
             index = 0;
         }
 
@@ -73,8 +73,8 @@ private:
     const float R, B;
     float lastLPos, lastRPos;
     float delta_left_radians, delta_right_radians;
-    float arrayL[20];
-    float arrayR[20];
+    float arrayL[10];
+    float arrayR[10];
     int index;
     int setup;
 };

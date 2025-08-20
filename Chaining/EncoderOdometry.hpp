@@ -39,7 +39,7 @@ public:
     float getY() const { return y; }
     float getH() const { return h; }
 
-    float AMF() {
+    float AMF() { //average moving filter
         arrayL[index] = delta_left_radians;
         arrayR[index] = delta_right_radians;
 

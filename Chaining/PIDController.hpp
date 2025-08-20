@@ -46,6 +46,10 @@ public:
         prev_time = micros();
         zero_ref = zero;
         setpoint = target;
+
+        integral = 0;
+        prev_error = 0;
+        output = 0;
     }
 
 public:

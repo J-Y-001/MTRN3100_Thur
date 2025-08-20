@@ -49,7 +49,9 @@ void setup() {
 int target_angle = 0;
 int i = 0;
 int check = 0;
-String command = path;
+int smooth_check = 0;
+String command = "FLFFRF";
+int skip = 0;
 
 void loop() {
     delay(50);
@@ -58,19 +60,21 @@ void loop() {
     IMU_odometry.update(mpu.getAccX(), mpu.getAccY(), mpu.getAngleZ());
     encoder_odometry.update(encoder.getLeftRotation(),encoder.getRightRotation());
 
-    if (command[i] == 'l' && check == 0) {
+    Serial.println(command[i]);
+
+    if (command[i] == 'L' && check == 0) {
         target_angle = 90;
         IMUController.zeroAndSetTarget(mpu.getAngleZ(), target_angle);
         check = 1;
     }
     
-    if (command[i] == 'r' && check == 0) {
+    if (command[i] == 'R' && check == 0) {
         target_angle = -90;
         IMUController.zeroAndSetTarget(mpu.getAngleZ(), target_angle);
         check = 1;
     }
 
-    if (command[i] == 'l' || command[i] == 'r'){
+    if (command[i] == 'L' || command[i] == 'R'){
         float current_angle = mpu.getAngleZ();
         float pwm_L = IMUController.compute(current_angle);
         if (pwm_L > 100) {
@@ -83,13 +87,13 @@ void loop() {
         motor2.setPWM(-pwm_L);
     }
 
-    if (command[i] == 'f' && check == 0) {
+    if (command[i] == 'F' && check == 0) {
         controller.zeroAndSetTarget(encoder.getLeftRotation(), -11.25);
         controller2.zeroAndSetTarget(encoder.getRightRotation(), 11.25);
         check = 1;
     }
 
-    if (command[i] == 'f') {
+    if (command[i] == 'F') {
         float current_rotationL = encoder.getLeftRotation();
         float pwm_L = controller.compute(current_rotationL);
         float current_rotationR = encoder.getRightRotation();
@@ -110,10 +114,139 @@ void loop() {
         motor2.setPWM(-pwm_R/1.05);
     }
 
+    if (i + 2 < command.length()) {
+        String three = command.substring(i, i + 3);
+        Serial.println(three);
+
+        if (three == "FRF" || three == "FLF") {
+            if (smooth_check == 0) {
+                controller.zeroAndSetTarget(encoder.getLeftRotation(), -11.25/2);
+                controller2.zeroAndSetTarget(encoder.getRightRotation(), 11.25/2);
+                smooth_check = 1;
+                Serial.println(smooth_check);
+            }
+
+            if (smooth_check == 1) {
+                float current_rotationL = encoder.getLeftRotation();
+                float pwm_L = controller.compute(current_rotationL);
+                float current_rotationR = encoder.getRightRotation();
+                float pwm_R = controller2.compute(current_rotationR);  
+                if (pwm_L > 100) {
+                    pwm_L = 100;
+                }
+                if (pwm_L < -100) {
+                    pwm_L = -100;
+                }    
+                if (pwm_R > 100) {
+                    pwm_R = 100;
+                }
+                if (pwm_R < -100) {
+                    pwm_R = -100;
+                }     
+                motor.setPWM(-pwm_L);
+                motor2.setPWM(-pwm_R/1.05);
+
+                if (current_rotationL <= -11.25/2 && current_rotationR >= 11.25/2) {
+                    smooth_check = 2;
+                    Serial.println(smooth_check);
+                }
+            }
+
+            if (smooth_check == 2) {
+                    if (three == "FLF") {
+                        target_angle = 90;
+                        IMUController.zeroAndSetTarget(mpu.getAngleZ(), target_angle);
+                        check = 1;
+                    }
+                    
+                    if (three == "FRF") {
+                        target_angle = -90;
+                        IMUController.zeroAndSetTarget(mpu.getAngleZ(), target_angle);
+                        check = 1;
+                    }
+                smooth_check = 3;
+                Serial.println(smooth_check);
+            }
+
+            if (smooth_check == 3) {
+                float current_angle = mpu.getAngleZ();
+                float pwm_L = IMUController.compute(current_angle);
+                if (three == "FLF") {
+                    if (pwm_L > 100) {
+                        pwm_L = 100;
+                    }
+                    if (pwm_L < -100) {
+                        pwm_L = -100;
+                    }  
+                    motor.setPWM(pwm_L/2);
+                    motor2.setPWM(-pwm_L);
+                }
+                if (three == "FRF") {
+                    if (pwm_L > 100) {
+                        pwm_L = 100;
+                    }
+                    if (pwm_L < -100) {
+                        pwm_L = -100;
+                    }  
+                    motor.setPWM(-pwm_L);
+                    motor2.setPWM(pwm_L/2);
+                } 
+                if (three == "FLF" && mpu.getAngleZ() >= 90) {
+                    smooth_check = 4;
+                    Serial.println(smooth_check);
+                }   
+                if (three == "FRF" && mpu.getAngleZ() <= -90) {
+                    smooth_check = 4;
+                    Serial.println(smooth_check);
+                }             
+            }
+
+            if (smooth_check == 4) {
+                controller.zeroAndSetTarget(encoder.getLeftRotation(), -11.25/2);
+                controller2.zeroAndSetTarget(encoder.getRightRotation(), 11.25/2);
+                smooth_check = 5;
+                Serial.println(smooth_check);
+            }
+
+            if (smooth_check == 5) {
+                float current_rotationL = encoder.getLeftRotation();
+                float pwm_L = controller.compute(current_rotationL);
+                float current_rotationR = encoder.getRightRotation();
+                float pwm_R = controller2.compute(current_rotationR);  
+                if (pwm_L > 100) {
+                    pwm_L = 100;
+                }
+                if (pwm_L < -100) {
+                    pwm_L = -100;
+                }    
+                if (pwm_R > 100) {
+                    pwm_R = 100;
+                }
+                if (pwm_R < -100) {
+                    pwm_R = -100;
+                }     
+                motor.setPWM(-pwm_L);
+                motor2.setPWM(-pwm_R/1.05);
+                if (current_rotationL <= -11.25/2 && current_rotationR >= 11.25/2) {
+                    skip = 1;
+                    smooth_check = 10;
+                    Serial.println(smooth_check);
+                }
+            }
+            Serial.println(smooth_check);
+        }
+    }
     //encoder_odometry.AMF();
 
     if (encoder_odometry.AMF() == 1) {
-        i++;
+        if (skip == 1) {
+            i = i + 3;
+            skip = 0;
+            smooth_check = 0;
+        }
+        else {
+            i++;
+        }
         Serial.println(i);
         check = 0;
         if (i == command.length()) {

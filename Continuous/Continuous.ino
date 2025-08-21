@@ -105,7 +105,7 @@ void loop() {
             pwm_R = -100;
         }     
         motor.setPWM(-pwm_L);
-        motor2.setPWM(-pwm_R/1.05);
+        motor2.setPWM(-pwm_R/1.04);
 
     }
 

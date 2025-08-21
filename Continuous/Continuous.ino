@@ -5,7 +5,7 @@
 #include <MPU6050_light.h>
 #include "Motor.hpp"
 #include "PIDController.hpp"
-#include "path.h"
+#include "path_c.h"
 
 #define MOT1PWM 11
 #define MOT1DIR 12
@@ -51,7 +51,8 @@ int i = 0;
 int j = 0;
 int check = 0;
 int smooth_check = 0;
-String command = path;
+static const float (*path)[2] = movements;
+const int pathLength = sizeof(movements) / sizeof(movements[0]);
 
 void loop() {
     delay(50);
@@ -61,7 +62,7 @@ void loop() {
     encoder_odometry.update(encoder.getLeftRotation(),encoder.getRightRotation());
 
     if (j == 0 && check == 0) {
-        target_angle = path[i][j];
+        target_angle = -path[i][j];
         IMUController.zeroAndSetTarget(mpu.getAngleZ(), target_angle);
         check = 1;
     }
@@ -111,16 +112,19 @@ void loop() {
     //encoder_odometry.AMF();
 
     if (encoder_odometry.AMF() == 1) {
-        if (j == 1) {
-            i++;
-            j = 0;
-        }
         if (j == 0) {
             j = 1;
         }
-        Serial.println(i);
+        else if (j == 1) {
+            i++;
+            j = 0;
+            Serial.println(i);
+            Serial.println(j);
+        }
+
+        Serial.println(j);
         check = 0;
-        if (i == command.length()) {
+        if (i == pathLength) {
            delay(20000);
         } 
     }
